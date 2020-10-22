@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:provider_counter/models/counter.dart';
 
 void main() {
   runApp(
@@ -13,12 +14,22 @@ void main() {
     // Provider, but then we would have to listen to Counter ourselves.
     //
     // Read Provider's docs to learn about all the available providers.
-    ChangeNotifierProvider(
+    MultiProvider(
       // Initialize the model in the builder. That way, Provider
       // can own Counter's lifecycle, making sure to call `dispose`
       // when not needed anymore.
-      create: (context) => Counter(),
-      child: MyApp(),
+      providers: [
+        ChangeNotifierProvider<Counter>(
+          create: (context) => Counter(),
+          ),
+      ],
+      child: MaterialApp(
+        title: 'Provider Demo',
+        initialRoute: '/',
+        routes: {
+          '/': (context) => MyApp(),
+        },
+      ),
     ),
   );
 }
@@ -27,14 +38,6 @@ void main() {
 ///
 /// [ChangeNotifier] is a class in `flutter:foundation`. [Counter] does
 /// _not_ depend on Provider.
-class Counter with ChangeNotifier {
-  int value = 0;
-
-  void increment() {
-    value += 1;
-    notifyListeners();
-  }
-}
 
 class MyApp extends StatelessWidget {
   @override
@@ -52,6 +55,7 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var counterProvider = Provider.of<Counter>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Flutter Demo Home Page'),
@@ -60,17 +64,18 @@ class MyHomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text('You have pushed the button this many times:'),
+            Text('You have pushed the button this many times:' + counterProvider.value.toString()),
             // Consumer looks for an ancestor Provider widget
             // and retrieves its model (Counter, in this case).
             // Then it uses that model to build widgets, and will trigger
             // rebuilds if the model is updated.
-            Consumer<Counter>(
-              builder: (context, counter, child) => Text(
-                '${counter.value}',
-                style: Theme.of(context).textTheme.headline4,
-              ),
-            ),
+          
+            // Consumer<Counter>(
+            //   builder: (context, counter, child) => Text(
+            //     '${counter.value}',
+            //     style: Theme.of(context).textTheme.headline4,
+            //   ),
+            // ),
           ],
         ),
       ),
